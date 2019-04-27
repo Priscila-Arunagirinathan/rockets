@@ -25,6 +25,16 @@ public class UserUnitTest {
         assertEquals("email cannot be null or empty", exception.getMessage());
     }
 
+    @DisplayName("should throw exception when pass a not valid email address")
+    @ParameterizedTest
+    @ValueSource(strings = {"test", "test.test", "test.@", "test.@xx", "tse@xx."})
+    public void shouldReturnErrorWhenEmailNotValid(String email) throws Exception {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> target.setEmail(email));
+        assertEquals("not valid email format", exception.getMessage());
+
+    }
+
     @DisplayName("should throw exception when pass null to setEmail function")
     @Test
     public void shouldThrowExceptionWhenSetEmailToNull() {
