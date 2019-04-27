@@ -7,8 +7,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-//test1 test1111111 wwwwnnn
-
 class LaunchUnitTest {
     private Launch target;
 
