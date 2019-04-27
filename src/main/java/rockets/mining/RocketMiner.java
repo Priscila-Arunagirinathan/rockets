@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import rockets.dataaccess.DAO;
 import rockets.model.Launch;
 import rockets.model.LaunchServiceProvider;
+import rockets.model.Payloads;
 import rockets.model.Rocket;
 
 import java.math.BigDecimal;
@@ -172,5 +173,45 @@ public class RocketMiner {
      */
     public List<LaunchServiceProvider> highestRevenueLaunchServiceProviders(int k, int year) {
         return null;
+    }
+
+
+
+
+
+
+
+    //Extra part
+    /**
+     *  return the lauch which payloads is the top-k lightest
+     * @param k the number of launch.
+     * @return the list of k lauch which payloads is lightest
+     */
+    public List<Launch> lightestPayloadsLauchInLEO(int k){
+        logger.info("Returns the lauch which payloads is the top "+k+" lightest");
+        Collection<Launch> launches =  dao.loadAll(Launch.class);
+        HashMap<Launch,Integer> launchPayloadsInLEO = new HashMap<Launch,Integer>();
+        for(Launch l:launches){
+            if(launchPayloadsInLEO.containsKey(l)){
+                int oldValue = launchPayloadsInLEO.get(l);
+                for(Payloads p:l.getPayload()){
+                    oldValue+=p.getMassToLEO();
+                }
+                launchPayloadsInLEO.replace(l,oldValue);
+            }else{
+                int newValue = 0;
+                for(Payloads p:l.getPayload()){
+                    newValue+=p.getMassToLEO();
+                }
+                launchPayloadsInLEO.put(l,newValue);
+            }
+        }
+        List<Map.Entry<Launch,Integer>> list = new ArrayList<Map.Entry<Launch,Integer>>(launchPayloadsInLEO.entrySet());
+        return list.stream().sorted(new Comparator<Map.Entry<Launch, Integer>>() {
+            @Override
+            public int compare(Map.Entry<Launch, Integer> o1, Map.Entry<Launch, Integer> o2) {
+                return o1.getValue()-o2.getValue();
+            }
+        }).map(s->s.getKey()).limit(k).collect(Collectors.toList());
     }
 }
