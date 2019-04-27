@@ -13,11 +13,10 @@ import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -78,5 +77,28 @@ public class RocketMinerUnitTest {
         List<Launch> loadedLaunches = miner.mostRecentLaunches(k);
         assertEquals(k, loadedLaunches.size());
         assertEquals(sortedLaunches.subList(0, k), loadedLaunches);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3})
+    public void shouldReturnTopMostLaunchedRockets(int k){
+        when(dao.loadAll(Launch.class)).thenReturn(launches);
+        when(dao.loadAll(Rocket.class)).thenReturn(rockets);
+        List<Rocket> result = launches.stream().map(s->s.getLaunchVehicle())
+                .map(array-> Stream.of(array)).flatMap(stream->stream).collect(Collectors.groupingBy(s->s,Collectors.counting()))
+                .entrySet().stream().sorted(new Comparator<Map.Entry<Rocket, Long>>() {
+                    @Override
+                    public int compare(Map.Entry<Rocket, Long> o1, Map.Entry<Rocket, Long> o2) {
+                        return (int)(o2.getValue()-o1.getValue());
+                    }
+                }).map(s->s.getKey()).collect(Collectors.toList());
+        for(Rocket r:rockets){
+            if(!result.contains(r)){
+                result.add(r);
+            }
+        }
+        List<Rocket> loadedRockets = miner.mostLaunchedRockets(k);
+        assertEquals(k,loadedRockets.size());
+        assertEquals(result.subList(0, k), loadedRockets);
     }
 }

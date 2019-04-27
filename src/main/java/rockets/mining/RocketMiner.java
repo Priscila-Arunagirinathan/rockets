@@ -8,10 +8,13 @@ import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 
 import java.math.BigDecimal;
+import java.util.*;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class RocketMiner {
     private static Logger logger = LoggerFactory.getLogger(RocketMiner.class);
@@ -30,7 +33,27 @@ public class RocketMiner {
      * @return the list of k most active rockets.
      */
     public List<Rocket> mostLaunchedRockets(int k) {
-        return null;
+        logger.info("Returns the top "+k+" most active rockets, as measured by number of completed launches.");
+        //get the lauch list from the database
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        //get the rocket list from the database
+        Collection<Rocket> rockets = dao.loadAll(Rocket.class);
+        //Calculate the number of launches per rocket from the launch list and rank them in reverse order
+        List<Rocket> result = launches.stream().map(s->s.getLaunchVehicle())
+                .collect(Collectors.groupingBy(s->s,Collectors.counting()))
+                .entrySet().stream().sorted(new Comparator<Map.Entry<Rocket, Long>>() {
+                    @Override
+                    public int compare(Map.Entry<Rocket, Long> o1, Map.Entry<Rocket, Long> o2) {
+                        return (int)(o2.getValue()-o1.getValue());
+                    }
+                }).map(s->s.getKey()).collect(Collectors.toList());
+        //Insert rockets that are not in the answer list at the end of the list.
+        for(Rocket r:rockets){
+            if(!result.contains(r)){
+                result.add(r);
+            }
+        }
+        return result.stream().limit(k).collect(Collectors.toList());
     }
 
     /**
