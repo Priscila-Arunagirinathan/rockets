@@ -13,7 +13,7 @@ public class Rocket extends Entity {
 
     private String massToLEO;
 
-    private String massToGTO;
+    private int massToGTO;
 
     private String massToOther;
 
@@ -34,6 +34,10 @@ public class Rocket extends Entity {
         this.manufacturer = manufacturer;
     }
 
+    public Rocket(String test, String test1, String test2) {
+
+    }
+
     public String getName() {
         return name;
     }
@@ -46,23 +50,23 @@ public class Rocket extends Entity {
         return manufacturer;
     }
 
-    public String getMassToLEO() {
-        return massToLEO;
+    public int getMassToLEO() {
+        return Integer.parseInt(massToLEO);
     }
 
-    public String getMassToGTO() {
+    public int getMassToGTO() {
         return massToGTO;
     }
 
-    public String getMassToOther() {
-        return massToOther;
+    public int getMassToOther() {
+        return Integer.parseInt(massToOther);
     }
 
     public void setMassToLEO(String massToLEO) {
         this.massToLEO = massToLEO;
     }
 
-    public void setMassToGTO(String massToGTO) {
+    public void setMassToGTO(int massToGTO) {
         this.massToGTO = massToGTO;
     }
 

@@ -1,3 +1,5 @@
+
+//test demo
 package rockets.model;
 
 
@@ -34,7 +36,7 @@ public class RocketUnitTest {
     public void shouldThrowExceptionWhenNoManufacturerGiven() {
         String name = "BFR";
         String country = "USA";
-        assertThrows(NullPointerException.class, () -> new Rocket(name, country, null));
+        NullPointerException nullPointerException = assertThrows(NullPointerException.class, () -> new Rocket(name, country, null));
     }
 
     @DisplayName("should set rocket massToLEO value")
