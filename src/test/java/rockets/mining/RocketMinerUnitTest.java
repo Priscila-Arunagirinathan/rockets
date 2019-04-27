@@ -12,14 +12,18 @@ import rockets.model.Launch;
 import rockets.model.LaunchServiceProvider;
 import rockets.model.Rocket;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.math.BigDecimal.ROUND_HALF_DOWN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
+import static rockets.model.Launch.LaunchOutcome.FAILED;
+import static rockets.model.Launch.LaunchOutcome.SUCCESSFUL;
 
 public class RocketMinerUnitTest {
     Logger logger = LoggerFactory.getLogger(RocketMinerUnitTest.class);
@@ -53,6 +57,10 @@ public class RocketMinerUnitTest {
 
         // index of rocket of each launch
         int[] rocketIndex = new int[]{0, 0, 0, 0, 1, 1, 1, 2, 2, 3};
+
+        // OutCome of each launch
+        Launch.LaunchOutcome[] outcome = new Launch.LaunchOutcome[]{FAILED,SUCCESSFUL,FAILED,SUCCESSFUL,FAILED,
+                SUCCESSFUL,FAILED,SUCCESSFUL,FAILED,SUCCESSFUL};
 
         // 10 launches
         launches = IntStream.range(0, 10).mapToObj(i -> {
@@ -100,5 +108,54 @@ public class RocketMinerUnitTest {
         List<Rocket> loadedRockets = miner.mostLaunchedRockets(k);
         assertEquals(k,loadedRockets.size());
         assertEquals(result.subList(0, k), loadedRockets);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3})
+    public void shouldReturnMostReliableLaunchServiceProviders(int k){
+        when(dao.loadAll(Launch.class)).thenReturn(launches);
+        when(dao.loadAll(LaunchServiceProvider.class)).thenReturn(lsps);
+        HashMap<LaunchServiceProvider, RocketMiner.ReliableServer> reliableServers = new HashMap<LaunchServiceProvider, RocketMiner.ReliableServer>();
+        for(Launch l:launches){
+            if(reliableServers.containsKey(l.getLaunchServiceProvider())) {
+                RocketMiner.ReliableServer oldValue = reliableServers.get(l.getLaunchServiceProvider());
+                if(l.getLaunchOutcome()==FAILED){
+                    oldValue.failed = oldValue.failed.add(new BigDecimal(1));
+                }else{
+                    oldValue.success = oldValue.success.add(new BigDecimal(1));
+                }
+                oldValue.percentage = oldValue.success.divide(oldValue.failed.add(oldValue.success),10,ROUND_HALF_DOWN);
+                reliableServers.replace(l.getLaunchServiceProvider(),oldValue);
+            }else{
+                RocketMiner.ReliableServer server = new RocketMiner.ReliableServer();
+                if(l.getLaunchOutcome()==FAILED){
+                    server.failed = new BigDecimal(1);
+                    server.success = new BigDecimal(0);
+                    server.percentage = new BigDecimal(1);
+                }else{
+                    server.failed = new BigDecimal(0);
+                    server.success = new BigDecimal(1);
+                    server.percentage = new BigDecimal(0);
+                }
+                reliableServers.put(l.getLaunchServiceProvider(),server);
+            }
+        }
+        List<Map.Entry<LaunchServiceProvider, RocketMiner.ReliableServer>> list = new ArrayList<Map.Entry<LaunchServiceProvider, RocketMiner.ReliableServer>>(reliableServers.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<LaunchServiceProvider, RocketMiner.ReliableServer>>() {
+            @Override
+            public int compare(Map.Entry<LaunchServiceProvider, RocketMiner.ReliableServer> o1, Map.Entry<LaunchServiceProvider, RocketMiner.ReliableServer> o2) {
+                return o2.getValue().percentage.subtract(o1.getValue().percentage).compareTo(BigDecimal.ZERO);
+            }
+        });
+        List<LaunchServiceProvider> result = list.stream().map(a->a.getKey()).filter(a->a!=null).collect(Collectors.toList());
+        for(LaunchServiceProvider p:lsps){
+            if(!result.contains(p)) {
+                result.add(p);
+            }
+        }
+        result = result.stream().limit(k).collect(Collectors.toList());
+        List<LaunchServiceProvider> loadedProviders = miner.mostReliableLaunchServiceProviders(k);
+        assertEquals(k,loadedProviders.size());
+        assertEquals(result.subList(0,k),loadedProviders);
     }
 }
