@@ -33,11 +33,25 @@ public class RocketUnitTest {
 
     @DisplayName("should throw exception when given null manufacturer to constructor")
     @Test
-    public void shouldThrowExceptionWhenNoManufacturerGiven() {
-        String name = "BFR";
-        String country = "USA";
-        NullPointerException nullPointerException = assertThrows(NullPointerException.class, () -> new Rocket(name, country, null));
+  //  public void shouldThrowExceptionWhenNoManufacturerGiven() {
+    //    String name = "BFR";
+      //  String country = "USA";
+      //  NullPointerException nullPointerException = assertThrows(NullPointerException.class, () -> new Rocket(name, country, null));
+    //}
+
+    @DisplayName("should set rocket massToLEO value")
+    @ValueSource(strings = {"10000", "15000"})
+    public void shouldSetMassToLEOWhenGivenCorrectValue() {
+        shouldSetMassToLEOWhenGivenCorrectValue();
     }
+
+    @DisplayName("should throw exception when given null manufacturer to constructor")
+    @Test
+  //  public void shouldThrowExceptionWhenNoManufacturerGiven() {
+    //    String name = "BFR";
+      //  String country = "USA";
+      //  NullPointerException nullPointerException = assertThrows(NullPointerException.class, () -> new Rocket(name, country, null));
+    //}
 
     @DisplayName("should set rocket massToLEO value")
     @ValueSource(strings = {"10000", "15000"})
