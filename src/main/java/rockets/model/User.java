@@ -4,7 +4,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.Validate.notBlank;
 import static org.apache.commons.lang3.Validate.notNull;
@@ -98,6 +99,27 @@ public class User extends Entity {
         isValid = matcher.matches();
         return isValid;
     }
+
+    public String getPasswordDifficulty(){
+        if (this.password==null||this.password.isEmpty()){
+            return "easy";
+        }
+        String hardPatten= "^^(?![a-zA-z]+$)(?!\\d+$)(?![!@#$%^&*_-]+$)(?![a-zA-z\\d]+$)(?![a-zA-z!@#$%^&*_-]+$)(?![\\d!@#$%^&*_-]+$)[a-zA-Z\\d!@#$%^&*_-]+$";
+        String mediumPattern= "^(?![a-zA-z]+$)(?!\\d+$)(?![!@#$%^&*]+$)[a-zA-Z\\d!@#$%^&*]+$";
+        String easyPattern= "^(?:\\d+|[a-zA-Z]+|[!@#$%^&*]+)$";
+        Pattern patternE = Pattern.compile(easyPattern);
+        Matcher matcher=patternE.matcher(this.password);
+        if (matcher.matches()){
+            return "easy";
+        }else {
+            Pattern patternM = Pattern.compile(mediumPattern);
+            Matcher matcherM = patternM.matcher(this.password);
+            if (matcherM.matches()) {
+                return "medium";
+            }
+
+        }
+        return "hard";
 
     public int getPassDistance() throws ParseException {
         if (this.passwordSetTime==null){
