@@ -37,7 +37,7 @@ public class User extends Entity {
     }
 
     public void setLastName(String lastName) {
-        notBlank(lastName, "last name cannot be null or empty");
+        notBlank(lastName,"last name cannot be null or empty");
         this.lastName = lastName;
     }
 
@@ -47,7 +47,7 @@ public class User extends Entity {
 
     public void setEmail(String email) {
         notBlank(email, "email cannot be null or empty");
-        if (!checkIsEmailValid(email)) {
+        if (!checkIsEmailValid(email)){
             throw new IllegalArgumentException("not valid email format");
         }
         this.email = email;
@@ -58,10 +58,10 @@ public class User extends Entity {
     }
 
     public void setPassword(String password) {
-        notNull(password, "password cannot be null or empty");
-        notBlank(password, "password cannot be null or empty");
+        notNull(password,"password cannot be null or empty");
+        notBlank(password,"password cannot be null or empty");
         this.password = password;
-        this.passwordSetTime = df.format(new Date());
+        this.passwordSetTime=df.format(new Date());
     }
 
     // match the given password against user's password and return the result
@@ -100,6 +100,7 @@ public class User extends Entity {
         return isValid;
     }
 
+
     public String getPasswordDifficulty(){
         if (this.password==null||this.password.isEmpty()){
             return "easy";
@@ -121,6 +122,7 @@ public class User extends Entity {
         }
         return "hard";
 
+    }
     public int getPassDistance() throws ParseException {
         if (this.passwordSetTime==null){
             return 0;
@@ -129,4 +131,5 @@ public class User extends Entity {
         Date begintime=df.parse(this.passwordSetTime);
         return (int) ((nowTime.getTime() - begintime.getTime()) / (24 * 60 * 60 * 1000));
     }
+
 }
