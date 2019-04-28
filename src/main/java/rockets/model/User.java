@@ -22,7 +22,7 @@ public class User extends Entity {
 
     private String passwordSetTime;
 
-    private String passwordDifficulty;
+   // private String passwordDifficulty;
 
     public String getFirstName() {
         return firstName;
