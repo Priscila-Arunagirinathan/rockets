@@ -147,28 +147,31 @@ public class Launch extends Entity {
         return launchOutcome;
     }
 
-    public Launch(LaunchServiceProvider launchServiceProvider, String launchSite, String orbit, String function) {
+    public Launch(LaunchServiceProvider launchServiceProvider, String launchSite,Rocket rocket,String orbit, String function) {
         notNull(launchServiceProvider);
         notNull(launchSite);
+        notNull(rocket);
         notNull(orbit);
         notNull(function);
         this.launchServiceProvider = launchServiceProvider;
         this.launchSite = launchSite;
+        this.launchVehicle = rocket;
         this.orbit = orbit;
         this.function = function;
     }
 
-    public Launch(LaunchServiceProvider launchServiceProvider, Set<Payloads> payloads, String launchSite, String orbit, String function) {
+    public Launch(LaunchServiceProvider launchServiceProvider, Set<Payloads> payloads,Rocket rocket, String launchSite, String orbit, String function) {
         notNull(launchServiceProvider);
         notNull(payloads);
         notNull(launchSite);
         notNull(orbit);
         notNull(function);
+        notNull(rocket);
         this.orbit = orbit;
         this.launchServiceProvider = launchServiceProvider;
+        this.launchVehicle = rocket;
         this.setPayload(payloads);
         this.launchSite = launchSite;
-
         this.function = function;
     }
 
