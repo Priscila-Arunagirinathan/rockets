@@ -26,7 +26,9 @@ public class LaunchUnitTest {
         LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
         payloads.add(new Payloads("test", "test", "test"));
         payloads.add(new Payloads("test1", "test1", "test1"));
-        target = new Launch(launchServiceProvider, payloads, "test", "test", "test");
+        Rocket rocket=new Rocket("test","test",launchServiceProvider);
+        rocket.setMassToGTO(10);
+        target = new Launch(launchServiceProvider, payloads, rocket,"test", "test", "test");
         assertEquals("Rocket{launchSite='test', orbit='test', function='test', launchOutcome='null'}", target.toString());
     }
 
@@ -37,7 +39,9 @@ public class LaunchUnitTest {
         LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
         payloads.add(new Payloads("test", "test", "test"));
         payloads.add(new Payloads("test1", "test1", "test1"));
-        target = new Launch(launchServiceProvider, payloads, "test", "test", "test");
+        Rocket rocket=new Rocket("test","test",launchServiceProvider);
+        rocket.setMassToGTO(10);
+        target = new Launch(launchServiceProvider, payloads,rocket, "test", "test", "test");
         assertEquals("This launch is provided by rtest and its payloads have :[Payloads{name='test', country='test', manufacturer='test}, Payloads{name='test1', country='test1', manufacturer='test1}] and its function is :test and its launch site is in test and its orbit is in test", target.getLaunchEventInfo());
     }
 
@@ -46,9 +50,11 @@ public class LaunchUnitTest {
     public void shouldRPayLoadsInfo() {
         Set<Payloads> payloads = new HashSet<>();
         LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
+        Rocket rocket=new Rocket("test","test",launchServiceProvider);
+        rocket.setMassToGTO(10);
         payloads.add(new Payloads("test", "test", "test"));
         payloads.add(new Payloads("test1", "test1", "test1"));
-        target = new Launch(launchServiceProvider, payloads, "test", "test", "test");
+        target = new Launch(launchServiceProvider, payloads,rocket, "test", "test", "test");
         List<String> list = new ArrayList<>();
         for (Payloads payload : payloads) {
             list.add(payload.getName());
@@ -64,14 +70,14 @@ public class LaunchUnitTest {
         Set<Rocket> rockets = new HashSet<>();
         Rocket rocket=new Rocket("test","test",launchServiceProvider);
         rocket.setMassToGTO(1);
-        Payloads payloads1= new Payloads("test", "test", "test");
+        Payloads payloads1= new Payloads("test1", "test", "test");
         payloads1.setMassToGTO(1);
         payloads.add(payloads1);
-        Payloads payloads2= new Payloads("test", "test", "test");
+        Payloads payloads2= new Payloads("test2", "test", "test");
         payloads2.setMassToGTO(1);
         payloads.add(payloads2);
 //        target = new Launch(launchServiceProvider, payloads, "test", "gto", "test");
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> target = new Launch(launchServiceProvider, payloads, "test", "gto", "test"));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> target = new Launch(launchServiceProvider, payloads,rocket, "test", "gto", "test"));
         assertEquals("too much loads, system not allow", exception.getMessage());
 
     }
