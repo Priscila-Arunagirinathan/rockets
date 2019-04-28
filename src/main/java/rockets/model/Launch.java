@@ -64,10 +64,10 @@ public class Launch extends Entity {
             for (Payloads payloads1 : payload) {
                 payloadTotalMass += payloads1.getMassToGTO();
             }
-            int rocketTotalMass=0;
-            for (Rocket rocket : this.getLaunchServiceProvider().getRockets()) {
-                rocketTotalMass+=rocket.getMassToGTO();
-            }
+            int rocketTotalMass=this.getLaunchVehicle().getMassToGTO();
+//            for (Rocket rocket : this.getLaunchServiceProvider().getRockets()) {
+//                rocketTotalMass+=rocket.getMassToGTO();
+//            }
 
             if (payloadTotalMass<=rocketTotalMass){
                 this.payloads=payload;
@@ -79,10 +79,10 @@ public class Launch extends Entity {
             for (Payloads payloads1 : payload) {
                 payloadTotalMass += payloads1.getMassToLEO();
             }
-            int rocketTotalMass = 0;
-            for (Rocket rocket : this.getLaunchServiceProvider().getRockets()) {
-                rocketTotalMass += rocket.getMassToLEO();
-            }
+            int rocketTotalMass = this.getLaunchVehicle().getMassToLEO();
+//            for (Rocket rocket : this.getLaunchServiceProvider().getRockets()) {
+//                rocketTotalMass += rocket.getMassToLEO();
+//            }
 
             if (payloadTotalMass <= rocketTotalMass) {
                 this.payloads = payload;
@@ -94,10 +94,10 @@ public class Launch extends Entity {
             for (Payloads payloads1 : payload) {
                 payloadTotalMass += payloads1.getMassToOther();
             }
-            int rocketTotalMass = 0;
-            for (Rocket rocket : this.getLaunchServiceProvider().getRockets()) {
-                rocketTotalMass += rocket.getMassToOther();
-            }
+            int rocketTotalMass = this.getLaunchVehicle().getMassToOther();
+//            for (Rocket rocket : this.getLaunchServiceProvider().getRockets()) {
+//                rocketTotalMass += rocket.getMassToOther();
+//            }
 
             if (payloadTotalMass <= rocketTotalMass) {
                 this.payloads = payload;

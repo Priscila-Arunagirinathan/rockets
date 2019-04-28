@@ -4,10 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
-import java.util.*;
-import static org.junit.jupiter.api.Assertions.*;
 
-class LaunchUnitTest {
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public class LaunchUnitTest {
+
     private Launch target;
 
     @BeforeEach
@@ -58,7 +62,7 @@ class LaunchUnitTest {
         Set<Payloads> payloads = new HashSet<>();
         LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
         Set<Rocket> rockets = new HashSet<>();
-        Rocket rocket=new Rocket("test","test","test");
+        Rocket rocket=new Rocket("test","test",launchServiceProvider);
         rocket.setMassToGTO(1);
         Payloads payloads1= new Payloads("test", "test", "test");
         payloads1.setMassToGTO(1);
@@ -71,5 +75,6 @@ class LaunchUnitTest {
         assertEquals("too much loads, system not allow", exception.getMessage());
 
     }
+
 
 }

@@ -10,9 +10,6 @@ import rockets.model.Rocket;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -29,6 +26,15 @@ public class RocketMiner {
         this.dao = dao;
     }
 
+    static class ReliableServer{
+        // Record the number of successes
+        public BigDecimal success;
+        // Record the number of failures
+        public BigDecimal failed;
+        // Recording success rate
+        public BigDecimal percentage;
+    }
+
     /**
      * TODO: to be implemented & tested!
      * Returns the top-k most active rockets, as measured by number of completed launches.
@@ -38,9 +44,9 @@ public class RocketMiner {
      */
     public List<Rocket> mostLaunchedRockets(int k) {
         logger.info("Returns the top "+k+" most active rockets, as measured by number of completed launches.");
-        //get the lauch list from the database
+        // get the lauch list from the database
         Collection<Launch> launches = dao.loadAll(Launch.class);
-        //get the rocket list from the database
+        // get the rocket list from the database
         Collection<Rocket> rockets = dao.loadAll(Rocket.class);
         //Calculate the number of launches per rocket from the launch list and rank them in reverse order
         List<Rocket> result = launches.stream().map(s->s.getLaunchVehicle())
@@ -73,13 +79,13 @@ public class RocketMiner {
         logger.info("Returns the top "+k+" most reliable launch service providers as measured by percentage of successful launches.");
         //get the lauch list from the database
         Collection<Launch> launches = dao.loadAll(Launch.class);
-        //get the launch service provider list from the database
+        // get the launch service provider list from the database
         Collection<LaunchServiceProvider> lsps = dao.loadAll(LaunchServiceProvider.class);
         //Define a Hashmap and use the helper class ReliableServer to record the number of successful and failed launches
         // and the success rate of each service provider
         HashMap<LaunchServiceProvider,ReliableServer> reliableServers = new HashMap<LaunchServiceProvider,ReliableServer>();
         for(Launch l:launches){
-            //This provider has already appeared in previous records
+            // This provider has already appeared in previous records
             if(reliableServers.containsKey(l.getLaunchServiceProvider())) {
                 //ReliableServer Get ReliableServer from the provider
                 ReliableServer oldValue = reliableServers.get(l.getLaunchServiceProvider());
@@ -145,9 +151,21 @@ public class RocketMiner {
      * Returns the dominant country who has the most launched rockets in an orbit.
      *
      * @param orbit the orbit
-     * @return the country who sends the most payload to the orbit
+     * @return the country who sends the most launched rockets in an orbit.
      */
-    public String dominantCountry(String orbit) { return null;}
+    public String dominantCountry(String orbit) {
+        logger.info("Returns the dominant country who has the most launched rockets in "+orbit);
+        Collection<Launch> launches =  dao.loadAll(Launch.class);
+        return launches.stream().filter(a->a.getOrbit().equals(orbit)).map(s->s.getLaunchServiceProvider().getCountry())
+                .collect(Collectors.groupingBy(s->s,Collectors.counting()))
+                .entrySet().stream().sorted(new Comparator<Map.Entry<String, Long>>() {
+                    @Override
+                    public int compare(Map.Entry<String, Long> o1, Map.Entry<String, Long> o2) {
+                        return (int)(o2.getValue()-o1.getValue());
+                    }
+                }).collect(Collectors.toList()).get(0).getKey();
+
+    }
 
     /**
      * TODO: to be implemented & tested!
@@ -158,7 +176,14 @@ public class RocketMiner {
      * @return the list of k most expensive launches.
      */
     public List<Launch> mostExpensiveLaunches(int k) {
-        return null;
+        logger.info("Returns the top "+k+" most expensive launches.");
+        Collection<Launch> launches =  dao.loadAll(Launch.class);
+        return launches.stream().sorted(new Comparator<Launch>() {
+            @Override
+            public int compare(Launch o1, Launch o2) {
+                return o2.getPrice().subtract(o1.getPrice()).compareTo(BigDecimal.ZERO);
+            }
+        }).limit(k).collect(Collectors.toList());
     }
 
     /**
@@ -172,16 +197,56 @@ public class RocketMiner {
      * @return the list of k launch service providers who has the highest sales revenue.
      */
     public List<LaunchServiceProvider> highestRevenueLaunchServiceProviders(int k, int year) {
-        return null;
+        logger.info("Returns a list of launch service provider that has the top "+k+" highest sales revenue.");
+        Collection<Launch> launches = dao.loadAll(Launch.class);
+        Collection<LaunchServiceProvider> lsps = dao.loadAll(LaunchServiceProvider.class);
+        HashMap<LaunchServiceProvider,BigDecimal> result = new HashMap<LaunchServiceProvider,BigDecimal>();
+        //go through launch record which launch date equals year
+        for(Launch l:launches.stream().filter(s->s.getLaunchDate().getYear()==year).collect(Collectors.toList())){
+            //Calculate the sales of each service provider
+            if(result.containsKey(l.getLaunchServiceProvider())){
+                BigDecimal oldValue = result.get(l.getLaunchServiceProvider());
+                result.replace(l.getLaunchServiceProvider(),oldValue.add(l.getPrice()));
+            }else{
+                result.put(l.getLaunchServiceProvider(),l.getPrice());
+            }
+        }
+        //Sort service providers according to sales
+        List<LaunchServiceProvider> list =  result.entrySet().stream().sorted(new Comparator<Map.Entry<LaunchServiceProvider, BigDecimal>>() {
+            @Override
+            public int compare(Map.Entry<LaunchServiceProvider, BigDecimal> o1, Map.Entry<LaunchServiceProvider, BigDecimal> o2) {
+                return o2.getValue().subtract(o1.getValue()).compareTo(BigDecimal.ZERO);
+            }
+        }).map(s->s.getKey()).collect(Collectors.toList());
+        //Insert the non-launched launch service provider at the end of the result list
+        for(LaunchServiceProvider p:lsps){
+            if(!list.contains(p)) {
+                list.add(p);
+            }
+        }
+        return list.stream().limit(k).collect(Collectors.toList());
     }
 
+    /**
+     *
+     * Returns the dominant launch server provider who has the most launched rockets in an orbit.
+     *
+     * @param orbit the orbit
+     * @return the dominant launch server provider who has the most launched rockets in an orbit.
+     */
+    public LaunchServiceProvider dominantLaunchServiceProvider(String orbit){
+        logger.info("Returns the launch server provider who has the most launched rockets in "+orbit);
+        Collection<Launch> launches =  dao.loadAll(Launch.class);
+        return launches.stream().filter(a->a.getOrbit().equals(orbit)).map(s->s.getLaunchServiceProvider())
+                .collect(Collectors.groupingBy(s->s,Collectors.counting()))
+                .entrySet().stream().sorted(new Comparator<Map.Entry<LaunchServiceProvider, Long>>() {
+                    @Override
+                    public int compare(Map.Entry<LaunchServiceProvider, Long> o1, Map.Entry<LaunchServiceProvider, Long> o2) {
+                        return (int)(o2.getValue()-o1.getValue());
+                    }
+                }).collect(Collectors.toList()).get(0).getKey();
+    }
 
-
-
-
-
-
-    //Extra part
     /**
      *  return the lauch which payloads is the top-k lightest
      * @param k the number of launch.
@@ -213,5 +278,50 @@ public class RocketMiner {
                 return o1.getValue()-o2.getValue();
             }
         }).map(s->s.getKey()).limit(k).collect(Collectors.toList());
+    }
+
+    /**
+     * return the country who sends the most payloads in an orbit.
+     * @param orbit the orbit
+     * @return the country who sends the most payloads in an orbit.
+     */
+    public String dominantCountryInPayLoads(String orbit){
+        logger.info("Returns the dominant country who has the most payloads in "+orbit);
+        Collection<Launch> launches =  dao.loadAll(Launch.class);
+        //Define a HashMap for storing country names and load
+        HashMap<String,Integer> payloadInCountry = new HashMap<String,Integer>();
+        for(Launch l:launches) {
+            if(payloadInCountry.containsKey(l.getLaunchServiceProvider().getCountry())){
+                int oldValue = payloadInCountry.get(l.getLaunchServiceProvider().getCountry());
+                for(Payloads pay : l.getPayload()){
+                    if("leo".equals(orbit.toLowerCase())) {
+                        oldValue += pay.getMassToLEO();
+                    }else if("gto".equals(orbit.toLowerCase())){
+                        oldValue += pay.getMassToGTO();
+                    }else if("other".equals(orbit.toLowerCase())) {
+                        oldValue += pay.getMassToOther();
+                    }
+                }
+                payloadInCountry.replace(l.getLaunchServiceProvider().getCountry(),oldValue);
+            }else{
+                int newValue = 0;
+                for(Payloads pay : l.getPayload()){
+                    if("leo".equals(orbit.toLowerCase())) {
+                        newValue += pay.getMassToLEO();
+                    }else if("gto".equals(orbit.toLowerCase())){
+                        newValue += pay.getMassToGTO();
+                    }else if("other".equals(orbit.toLowerCase())) {
+                        newValue += pay.getMassToOther();
+                    }
+                }
+                payloadInCountry.put(l.getLaunchServiceProvider().getCountry(),newValue);
+            }
+        }
+        return payloadInCountry.entrySet().stream().sorted(new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return o2.getValue()-o1.getValue();
+            }
+        }).map(s->s.getKey()).collect(Collectors.toList()).get(0);
     }
 }

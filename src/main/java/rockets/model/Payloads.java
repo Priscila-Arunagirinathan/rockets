@@ -1,9 +1,10 @@
 package rockets.model;
 
 import java.util.Objects;
+
 import static org.apache.commons.lang3.Validate.notNull;
 
-public class Payloads extends Entity{
+public class Payloads extends Entity {
     private String name;
 
     private String country;

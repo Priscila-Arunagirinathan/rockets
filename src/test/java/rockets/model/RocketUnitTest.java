@@ -1,78 +1,107 @@
-
-//test demo
 package rockets.model;
 
-
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RocketUnitTest {
 
-    @BeforeEach
-    public void setUp() {
-    }
+    private Rocket target;
 
-    @AfterEach
-    public void tearDown() {
-    }
-
-    @DisplayName("should create rocket successfully when given right parameters to constructor")
     @Test
-    public void shouldConstructRocketObject() {
-        String name = "BFR";
-        String country = "USA";
-        LaunchServiceProvider manufacturer = new LaunchServiceProvider("SpaceX", 2002, "USA");
-        Rocket bfr = new Rocket(name, country, manufacturer);
-        assertNotNull(bfr);
+    public void shouldThrowExceptionWhenConstructWithNameNull(){
+        LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
+        NullPointerException exception = assertThrows(NullPointerException.class,
+                () -> target=new Rocket(null,"test",launchServiceProvider));
+        assertEquals("The validated object is null", exception.getMessage());
     }
 
-    @DisplayName("should throw exception when given null manufacturer to constructor")
     @Test
-  //  public void shouldThrowExceptionWhenNoManufacturerGiven() {
-    //    String name = "BFR";
-      //  String country = "USA";
-      //  NullPointerException nullPointerException = assertThrows(NullPointerException.class, () -> new Rocket(name, country, null));
-    //}
-
-    @DisplayName("should set rocket massToLEO value")
-    @ValueSource(strings = {"10000", "15000"})
-    public void shouldSetMassToLEOWhenGivenCorrectValue() {
-        shouldSetMassToLEOWhenGivenCorrectValue();
+    public void shouldThrowExceptionWhenConstructWithCountryNull(){
+        LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
+        NullPointerException exception = assertThrows(NullPointerException.class,
+                () -> target=new Rocket("test",null,launchServiceProvider));
+        assertEquals("The validated object is null", exception.getMessage());
     }
 
-    @DisplayName("should throw exception when given null manufacturer to constructor")
     @Test
-  //  public void shouldThrowExceptionWhenNoManufacturerGiven() {
-    //    String name = "BFR";
-      //  String country = "USA";
-      //  NullPointerException nullPointerException = assertThrows(NullPointerException.class, () -> new Rocket(name, country, null));
-    //}
-
-    @DisplayName("should set rocket massToLEO value")
-    @ValueSource(strings = {"10000", "15000"})
-    public void shouldSetMassToLEOWhenGivenCorrectValue(String massToLEO) {
-        String name = "BFR";
-        String country = "USA";
-        LaunchServiceProvider manufacturer = new LaunchServiceProvider("SpaceX", 2002, "USA");
-
-        Rocket bfr = new Rocket(name, country, manufacturer);
-
-        bfr.setMassToLEO(massToLEO);
-        assertEquals(massToLEO, bfr.getMassToLEO());
+    public void shouldThrowExceptionWhenConstructWithManuNull(){
+        NullPointerException exception = assertThrows(NullPointerException.class,
+                () -> target=new Rocket("test", "test",null));
+        assertEquals("The validated object is null", exception.getMessage());
     }
 
-    @DisplayName("should throw exception when set massToLEO to null")
+
     @Test
-    public void shouldThrowExceptionWhenSetMassToLEOToNull() {
-        String name = "BFR";
-        String country = "USA";
-        LaunchServiceProvider manufacturer = new LaunchServiceProvider("SpaceX", 2002, "USA");
-        Rocket bfr = new Rocket(name, country, manufacturer);
-        assertThrows(NullPointerException.class, () -> bfr.setMassToLEO(null));
+    public void shouldThrowExceptionWhenConstructWithManuRocketNull(){
+        LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
+        NullPointerException exception = assertThrows(NullPointerException.class,
+                () -> target=new Rocket("test", "test",launchServiceProvider,null));
+        assertEquals("The validated object is null", exception.getMessage());
     }
+
+    @DisplayName("should return true when objects equals")
+    @Test
+    public void shouldReturnTrueWhenObjectEquals() throws Exception {
+        LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
+        target = new Rocket("test", "test", launchServiceProvider);
+        Rocket other = new Rocket("test", "test", launchServiceProvider);
+        boolean isMatch = target.equals(other);
+        assertTrue(isMatch);
+    }
+
+    @DisplayName("should return false when objects equals")
+    @Test
+    public void shouldReturnFalseWhenObjectEqualsNameNot() throws Exception {
+        LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
+        target = new Rocket("test", "test", launchServiceProvider);
+        Rocket other = new Rocket("test1", "test", launchServiceProvider);
+        boolean isMatch = target.equals(other);
+        assertFalse(isMatch);
+    }
+
+    @DisplayName("should return false when objects equals")
+    @Test
+    public void shouldReturnFalseWhenObjectEqualsCountyNot() throws Exception {
+        LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
+        target = new Rocket("test", "test", launchServiceProvider);
+        Rocket other = new Rocket("test", "test1", launchServiceProvider);
+        boolean isMatch = target.equals(other);
+        assertFalse(isMatch);
+    }
+    @DisplayName("should return false when objects equals")
+    @Test
+    public void shouldReturnFalseWhenObjectEqualsManuNot() throws Exception {
+        LaunchServiceProvider launchServiceProvider1 = new LaunchServiceProvider("rtest", 1, "rtest");
+        LaunchServiceProvider launchServiceProvider2 = new LaunchServiceProvider("rtest", 2, "rtest");
+        target = new Rocket("test", "test", launchServiceProvider1);
+        Rocket other = new Rocket("test", "test", launchServiceProvider2);
+        boolean isMatch = target.equals(other);
+        assertFalse(isMatch);
+    }
+
+    @DisplayName("should return false when objects equals")
+    @Test
+    public void shouldReturnNormalString() throws Exception {
+        LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
+        target = new Rocket("test", "test", launchServiceProvider);
+        assertEquals("Rocket{name='test', country='test'," +
+                " manufacturer='LaunchServiceProvider{name='rtest', yearFounded='1', country='rtest'}', massToLEO='0', massToGTO='0', massToOther='0'}",target.toString());
+    }
+    @DisplayName("should return false when objects equals")
+    @Test
+    public void shouldReturnNormalHashCode() throws Exception {
+        LaunchServiceProvider launchServiceProvider = new LaunchServiceProvider("rtest", 1, "rtest");
+        target = new Rocket("test", "test", launchServiceProvider);
+        assertEquals(855975333,target.hashCode());
+    }
+
+
+
+
+
+
+
 }

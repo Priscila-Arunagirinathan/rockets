@@ -11,11 +11,15 @@ public class Rocket extends Entity {
 
     private LaunchServiceProvider manufacturer;
 
-    private String massToLEO;
+    private int massToLEO;
 
     private int massToGTO;
 
-    private String massToOther;
+    private int massToOther;
+
+    private Rocket rocketKind;
+
+    private String characteristics;
 
     /**
      * All parameters shouldn't be null.
@@ -34,7 +38,21 @@ public class Rocket extends Entity {
         this.manufacturer = manufacturer;
     }
 
-    public Rocket(String test, String test1, String test2) {
+
+    public Rocket(String name, String country, LaunchServiceProvider manufacturer, Rocket rocketKind) {
+        notNull(name);
+        notNull(country);
+        notNull(manufacturer);
+        notNull(rocketKind);
+
+        this.name = name;
+        this.country = country;
+        this.manufacturer = manufacturer;
+        if (this.getId()!=null){
+            if (!rocketKind.getId().equals(this.getId())){
+                this.rocketKind = rocketKind;
+            }
+        }
 
     }
 
@@ -51,7 +69,7 @@ public class Rocket extends Entity {
     }
 
     public int getMassToLEO() {
-        return Integer.parseInt(massToLEO);
+        return massToLEO;
     }
 
     public int getMassToGTO() {
@@ -59,10 +77,10 @@ public class Rocket extends Entity {
     }
 
     public int getMassToOther() {
-        return Integer.parseInt(massToOther);
+        return massToOther;
     }
 
-    public void setMassToLEO(String massToLEO) {
+    public void setMassToLEO(int massToLEO) {
         this.massToLEO = massToLEO;
     }
 
@@ -70,8 +88,24 @@ public class Rocket extends Entity {
         this.massToGTO = massToGTO;
     }
 
-    public void setMassToOther(String massToOther) {
+    public void setMassToOther(int massToOther) {
         this.massToOther = massToOther;
+    }
+
+    public Rocket getRocketKind() {
+        return rocketKind;
+    }
+
+    public String getCharacteristics() {
+        return characteristics;
+    }
+
+    public void setCharacteristics(String characteristics) {
+        this.characteristics = characteristics;
+    }
+
+    public void setRocketKind(Rocket rocketKind) {
+        this.rocketKind = rocketKind;
     }
 
     @Override
@@ -94,7 +128,7 @@ public class Rocket extends Entity {
         return "Rocket{" +
                 "name='" + name + '\'' +
                 ", country='" + country + '\'' +
-                ", manufacturer='" + manufacturer + '\'' +
+                ", manufacturer='" + manufacturer.toString() + '\'' +
                 ", massToLEO='" + massToLEO + '\'' +
                 ", massToGTO='" + massToGTO + '\'' +
                 ", massToOther='" + massToOther + '\'' +

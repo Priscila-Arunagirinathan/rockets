@@ -67,4 +67,13 @@ public class LaunchServiceProvider extends Entity {
 
         return Objects.hash(name, yearFounded, country);
     }
+
+    @Override
+    public String toString() {
+        return "LaunchServiceProvider{" +
+                "name='" + name + '\'' +
+                ", yearFounded='" + yearFounded + '\'' +
+                ", country='" + country + '\'' +
+                '}';
+    }
 }
